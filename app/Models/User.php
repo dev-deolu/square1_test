@@ -2,15 +2,23 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Str;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
+
+    /**
+     * The different types of users
+     *
+     * @var array
+     */
+    const TYPE = ['admin' => "administrator", 'basic' => 'basic'];
 
     /**
      * The attributes that are mass assignable.
@@ -41,4 +49,33 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * The "booted" method of the model.
+     *
+     * @return void
+     */
+    protected static function booted()
+    {
+        static::saving(function ($user) {
+            $user->uuid = (string) Str::uuid(); // Create uuid
+        });
+    }
+
+    /**
+     * Get the post of the user
+     */
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
+
+    /**
+     * Get administrator user
+     * @return \App\Models\User
+     */
+    public static function getAdministratorUser()
+    {
+        return User::where('type', User::TYPE['admin'])->first();
+    }
 }
