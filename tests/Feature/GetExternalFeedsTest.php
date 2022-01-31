@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use App\Jobs\GetFeedFromExternalServer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -21,6 +22,7 @@ class GetExternalFeedsTest extends TestCase
         Queue::fake();
 
         // Dispatch job
+        Http::fake();
         GetFeedFromExternalServer::dispatch();
 
         // Assert a job was pushed to a given queue...
